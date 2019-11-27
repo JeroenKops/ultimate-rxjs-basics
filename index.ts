@@ -79,9 +79,9 @@ const progressBar: any = document.querySelector('.scroll')
 
 const scroll$ = fromEvent(document, 'scroll');
 const progress$ = scroll$.pipe(
-  map(({target})=>{
+  map(({target})=>
     calculateScrollPercent(target.documentElement)
-  })
+  )
 )
 
 progress$.subscribe(percent =>{progressBar.style.width = `${percent}%`;}
