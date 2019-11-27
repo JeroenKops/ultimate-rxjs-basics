@@ -63,3 +63,5 @@ const intervalSource$ = interval(1000);
 
 const timerSource$ = timer(3000);
 // timerSource$.subscribe(console.log);
+
+fromEvent(document, 'scroll').subscribe(console.log);
