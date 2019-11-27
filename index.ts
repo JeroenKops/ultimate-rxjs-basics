@@ -8,7 +8,7 @@ import { range } from 'rxjs';
 import { from } from 'rxjs';
 import { interval } from 'rxjs';
 import { timer} from 'rxjs';
-import { map} from 'rxjs/operators'
+import { map, reduce,scan, take} from 'rxjs/operators'
 
 const observer = {
   next: value => console.log("next", value),
@@ -85,4 +85,25 @@ const progress$ = scroll$.pipe(
 )
 
 progress$.subscribe(percent =>{progressBar.style.width = `${percent}%`;}
-)
+);
+
+const numbers = [1,2,3,4];
+
+const totalReducer = (accumulator, currentValue)=> {
+//  console.log({accumulator, currentValue});
+  return accumulator + currentValue;}
+
+
+//const total = numbers.reduce(totalReducer,0);
+
+// console.log(total);
+
+// from(numbers).pipe(
+//   reduce(totalReducer, 0)
+// ).subscribe(console.log);
+
+interval(1000).pipe(
+  take(3),
+  reduce(totalReducer, 0)
+).subscribe({next: console.log,
+complete: ()=> console.log('complete!')});
