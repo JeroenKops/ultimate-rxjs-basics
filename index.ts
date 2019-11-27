@@ -1,3 +1,4 @@
+import './style.css';
 console.clear();
 
 import { Observable } from "rxjs";
@@ -7,6 +8,7 @@ import { range } from 'rxjs';
 import { from } from 'rxjs';
 import { interval } from 'rxjs';
 import { timer} from 'rxjs';
+import { map} from 'rxjs/operators'
 
 const observer = {
   next: value => console.log("next", value),
@@ -64,4 +66,23 @@ const intervalSource$ = interval(1000);
 const timerSource$ = timer(3000);
 // timerSource$.subscribe(console.log);
 
-fromEvent(document, 'scroll').subscribe(console.log);
+/*
+ * Calculate progress based on scroll position
+ */
+function calculateScrollPercent(element) {
+  const { scrollTop, scrollHeight, clientHeight } = element;
+
+  return (scrollTop / (scrollHeight - clientHeight)) * 100;
+}
+
+const progressBar: any = document.querySelector('.scroll')
+
+const scroll$ = fromEvent(document, 'scroll');
+const progress$ = scroll$.pipe(
+  map(({target})=>{
+    calculateScrollPercent(target.documentElement)
+  })
+)
+
+progress$.subscribe(percent =>{progressBar.style.width = `${percent}%`;}
+)

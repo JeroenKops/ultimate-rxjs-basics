@@ -1,0 +1,7 @@
+.scroll{
+  height: 4px;
+  width: 0;
+  position: fixed;
+    top: 0;
+  background: red;
+}
