@@ -87,7 +87,7 @@ const progress$ = scroll$.pipe(
 progress$.subscribe(percent =>{progressBar.style.width = `${percent}%`;}
 );
 
-const numbers = [1,2,3,4];
+const numbers = [1,2,3,4,5];
 
 const totalReducer = (accumulator, currentValue)=> {
 //  console.log({accumulator, currentValue});
@@ -99,11 +99,27 @@ const totalReducer = (accumulator, currentValue)=> {
 // console.log(total);
 
 // from(numbers).pipe(
-//   reduce(totalReducer, 0)
+//   scan(totalReducer, 0)
 // ).subscribe(console.log);
 
-interval(1000).pipe(
-  take(3),
-  reduce(totalReducer, 0)
-).subscribe({next: console.log,
-complete: ()=> console.log('complete!')});
+// interval(1000).pipe(
+//   take(3),
+//   reduce(totalReducer, 0)
+// ).subscribe({next: console.log,
+// complete: ()=> console.log('complete!')});
+const users = [
+  {name: 'Brian', loggedIn: false,token :null},
+{name: 'Brian', loggedIn: true,token :'abc'},{name: 'Brian', loggedIn: true,token :123}
+];
+
+const scanned$ = from(users).pipe(
+  scan((accumulatorValue, currentValue)=>{
+    return {...accumulatorValue,...currentValue};
+  },{})
+);
+
+const names$ = scanned$.pipe(
+  map(value => value.name)
+);
+
+names$.subscribe(console.log);
