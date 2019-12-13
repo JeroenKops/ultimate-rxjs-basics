@@ -1,65 +1,16 @@
 import {of, from, interval, fromEvent} from 'rxjs';
-import{map,mapTo, scan, takeUntil, first, take, takeWhile, distinctUntilChanged, distinctUntilKeyChanged} from 'rxjs/operators';
+import{map,mapTo, pluck, scan, debounceTime, debounce, takeUntil, first, take, takeWhile, distinctUntilChanged, distinctUntilKeyChanged} from 'rxjs/operators';
 console.clear();
 
-// const clicks$ = fromEvent(document, 'click');
+const inputBox = document.getElementById('text-input');
 
-// clicks$.pipe(
-//   map(value => {return {x: value.clientX, y: value.clientY}}),
-//   takeWhile(({x}) => x < 100)
-// )
-// .subscribe({
-//   next:console.log,
-//   complete: () => console.log('Complete!')
-// }); 
-
-// const countdown = document.getElementById('countdown');
-// const message = document.getElementById('message');
-
-// const abortButton = document.getElementById('abort');
-// const counter$ = interval(1000);
-// const abort$ = fromEvent(abortButton, 'click');
-
-// counter$
-//   .pipe(
-//     mapTo(-1),
-//     scan((accumulator, current) => {
-//       return accumulator + current;
-//     }, 10),
-//     takeUntil(abort$)
-//   )
-//   .subscribe((value: any) => {
-//     countdown.innerHTML = value;
-//     if (!value) {
-//       message.innerHTML = 'Liftoff!';
-//     }
-//   });
-
-// const numbers$ = of(1,1,'1',2,3,3,3,4,5,3);
-
-// numbers$.pipe(
-//   distinctUntilChanged()
-// ).subscribe(console.log);
-
-
-const user = [
-  { name: 'Brian', loggedIn: false, token: null },
-  { name: 'Brian', loggedIn: true, token: 'abc' },
-  { name: 'Brian', loggedIn: true, token: '123' }
-];
-
-const state$ = from(user).pipe(
-  scan((accumulator, currentValue) => {
-    return { ...accumulator, ...currentValue };
-  }, {})
-);
-
-const name$ = state$.pipe(
-  
-  distinctUntilKeyChanged('name'),
-  map((state: any) => state.name),
+const click$ = fromEvent(document, 'click');
+const input$ = fromEvent(inputBox, 'keyup');
  
-);
+input$.pipe(
+  debounce(() => interval(1000)),
+  pluck('target','value'), 
+  distinctUntilChanged()
+).subscribe(console.log);
 
-name$.subscribe(console.log);
 
