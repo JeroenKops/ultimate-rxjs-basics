@@ -1,5 +1,5 @@
-import {of, interval, fromEvent} from 'rxjs';
-import{map,mapTo, scan, takeUntil, first, take, takeWhile, distinctUntilChanged} from 'rxjs/operators';
+import {of, from, interval, fromEvent} from 'rxjs';
+import{map,mapTo, scan, takeUntil, first, take, takeWhile, distinctUntilChanged, distinctUntilKeyChanged} from 'rxjs/operators';
 console.clear();
 
 // const clicks$ = fromEvent(document, 'click');
@@ -41,4 +41,25 @@ console.clear();
 //   distinctUntilChanged()
 // ).subscribe(console.log);
 
+
+const user = [
+  { name: 'Brian', loggedIn: false, token: null },
+  { name: 'Brian', loggedIn: true, token: 'abc' },
+  { name: 'Brian', loggedIn: true, token: '123' }
+];
+
+const state$ = from(user).pipe(
+  scan((accumulator, currentValue) => {
+    return { ...accumulator, ...currentValue };
+  }, {})
+);
+
+const name$ = state$.pipe(
+  
+  distinctUntilKeyChanged('name'),
+  map((state: any) => state.name),
+ 
+);
+
+name$.subscribe(console.log);
 
