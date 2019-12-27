@@ -1,7 +1,7 @@
 console.clear();
 
-import {fromEvent, interval} from 'rxjs';
-import { map,  mergeMap,switchMap, takeUntil,debounceTime, pluck, distinctUntilChanged } from 'rxjs/operators';
+import {of, fromEvent, interval} from 'rxjs';
+import { delay, map,  mergeMap,concatMap, switchMap, takeUntil,take,debounceTime, pluck, distinctUntilChanged } from 'rxjs/operators';
 import {ajax} from 'rxjs/ajax';
 
 const click$ = fromEvent(document, 'click');
@@ -35,14 +35,43 @@ const interval$ = interval(1000);
 //  switchMap(()=> interval$)
 // ).subscribe(console.log);
 
-const BASE_URL = 'https://api.openbrewerydb.org/breweries';
+// const BASE_URL = 'https://api.openbrewerydb.org/breweries';
 
-const inputBox = document.getElementById('text-input');
-const input$ = fromEvent(inputBox,'keyup');
+// const inputBox = document.getElementById('text-input');
 
-input$.pipe(
-  //debounceTime(500),
-  pluck('target','value'),
-  distinctUntilChanged(),
-  switchMap(searchTerm =>{return ajax.getJSON(`${BASE_URL}?by_name=${searchTerm}`)})
+// const typeaheadContainer = document.getElementById('typeahead-container');
+
+// const input$ = fromEvent(inputBox,'keyup');
+
+// input$.pipe(
+//   //debounceTime(500),
+//   pluck('target','value'),
+//   distinctUntilChanged(),
+//   switchMap(searchTerm =>{return ajax.getJSON(`${BASE_URL}?by_name=${searchTerm}`)})
+// ).subscribe(response => { 
+//     //update ui
+//     typeaheadContainer.innerHTML = response.map(b => b.name).join('<br/>')
+//   }
+// );
+
+// ------ CONCAT MAP ------
+
+// click$.pipe(
+//   concatMap(()=> interval$.pipe(
+//     take(3)
+//   )), 
+// ).subscribe(console.log);
+
+const saveAnswer = answer => {
+  return of(`Saved: ${answer}`).pipe(
+    delay(1500)
+  );
+};
+
+const radioButtons = document.querySelectorAll('.radio-option');
+
+const answerChange$ = fromEvent(radioButtons, 'click');
+
+answerChange$.pipe(
+  concatMap(event => saveAnswer(event.target.value))
 ).subscribe(console.log);
