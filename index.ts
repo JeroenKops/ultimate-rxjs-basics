@@ -1,7 +1,7 @@
 console.clear();
 
 import {of, fromEvent, interval} from 'rxjs';
-import { delay, map,  mergeMap,concatMap, switchMap, takeUntil,take,debounceTime, pluck, distinctUntilChanged } from 'rxjs/operators';
+import { delay, map,  mergeMap,concatMap, switchMap, exhaustMap, takeUntil,take,debounceTime, pluck, distinctUntilChanged } from 'rxjs/operators';
 import {ajax} from 'rxjs/ajax';
 
 const click$ = fromEvent(document, 'click');
@@ -62,16 +62,37 @@ const interval$ = interval(1000);
 //   )), 
 // ).subscribe(console.log);
 
-const saveAnswer = answer => {
-  return of(`Saved: ${answer}`).pipe(
-    delay(1500)
-  );
-};
+// const saveAnswer = answer => {
+//   return of(`Saved: ${answer}`).pipe(
+//     delay(1500)
+//   );
+// };
 
-const radioButtons = document.querySelectorAll('.radio-option');
+// const radioButtons = document.querySelectorAll('.radio-option');
 
-const answerChange$ = fromEvent(radioButtons, 'click');
+// const answerChange$ = fromEvent(radioButtons, 'click');
 
-answerChange$.pipe(
-  concatMap(event => saveAnswer(event.target.value))
+// answerChange$.pipe(
+//   concatMap(event => saveAnswer(event.target.value))
+// ).subscribe(console.log);
+
+// ------ EXHAUST MAP ------
+
+// click$.pipe(
+//   exhaustMap(()=> interval$.pipe(
+//     take(3)
+//   ))
+// ).subscribe(console.log);
+
+const REGRES_IN_LOGIN = 'http://regres.in/api/login';
+
+const login = () =>{
+  return ajax.post(REGRES_IN_LOGIN, {email:'eve.holt@reqres.in',password:'cityslicka'});
+}
+
+const loginButton = document.getElementById('login-button');
+
+const loginButtonClick$ = fromEvent(loginButton, 'click');
+loginButtonClick$.pipe(
+  exhaustMap(()=> login())
 ).subscribe(console.log);
