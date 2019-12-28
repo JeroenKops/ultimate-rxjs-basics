@@ -84,15 +84,20 @@ const interval$ = interval(1000);
 //   ))
 // ).subscribe(console.log);
 
-const REGRES_IN_LOGIN = 'http://regres.in/api/login';
+const REGRES_IN_LOGIN = 'https://regres.in/api/login';
 
 const login = () =>{
   return ajax.post(REGRES_IN_LOGIN, {email:'eve.holt@reqres.in',password:'cityslicka'});
 }
 
-const loginButton = document.getElementById('login-button');
+const loginButton = document.getElementById('login');
 
-const loginButtonClick$ = fromEvent(loginButton, 'click');
-loginButtonClick$.pipe(
+console.log(loginButton);
+
+const login$ = fromEvent(loginButton, 'click');
+
+login$.pipe(
   exhaustMap(()=> login())
 ).subscribe(console.log);
+
+// login$.subscribe(console.log('clicked'));
