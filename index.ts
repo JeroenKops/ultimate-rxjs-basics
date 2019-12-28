@@ -1,7 +1,8 @@
 console.clear();
 
-import {of, interval, fromEvent, concat, merge, combineLatest,empty} from 'rxjs'
-import {startWith, endWith,mapTo,scan,tap, takeUntil, takeWhile, take,delay, concat as concatOp, switchMap, map, filter, withLatestFrom} from 'rxjs/operators'
+import {of,empty, interval, fromEvent, concat, merge, combineLatest,forkJoin} from 'rxjs'
+import {startWith, endWith,mapTo,scan,tap, takeUntil, takeWhile, take,delay, concat as concatOp, switchMap, map, filter, withLatestFrom,catchError} from 'rxjs/operators'
+import {ajax} from 'rxjs/ajax'
 
 // ------ startWith and endWith ------
 
@@ -133,9 +134,32 @@ import {startWith, endWith,mapTo,scan,tap, takeUntil, takeWhile, take,delay, con
 
 
 // ------ withLatestFrom ----
-const click$ = fromEvent(document, 'click');
-const interval$ = interval(1000);
+// const click$ = fromEvent(document, 'click');
+// const interval$ = interval(1000);
+//
+// click$.pipe(
+//   withLatestFrom(interval$)
+// ).subscribe(console.log);
 
-click$.pipe(
-  withLatestFrom(interval$)
-).subscribe(console.log);
+// ------- forkJoin ------
+// const number$ = of(1,2,3);
+// const letter$ = of('x','y','z');
+
+// forkJoin({
+//  number: number$,
+//  letter: letter$.pipe(delay(3000))
+// }
+// ).subscribe(console.log);
+
+
+const GITHUB_API = 'https://api.github.com';
+
+forkJoin({
+  user: ajax.getJSON(`${GITHUB_API}/users/JeroenKops`),
+  repo: ajax.getJSON(`${GITHUB_API}/users/JeroenKops/repos`).pipe(
+    catchError(error =>{
+      console.log(error);
+      return empty();
+    })
+  )
+}).subscribe(console.log);
