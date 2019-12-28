@@ -1,7 +1,7 @@
 console.clear();
 
-import {of, interval, fromEvent, concat, merge,empty} from 'rxjs'
-import {startWith, endWith,mapTo,scan,tap, takeUntil, takeWhile, take,delay, concat as concatOp, switchMap} from 'rxjs/operators'
+import {of, interval, fromEvent, concat, merge, combineLatest,empty} from 'rxjs'
+import {startWith, endWith,mapTo,scan,tap, takeUntil, takeWhile, take,delay, concat as concatOp, switchMap, map, filter, withLatestFrom} from 'rxjs/operators'
 
 // ------ startWith and endWith ------
 
@@ -75,33 +75,67 @@ import {startWith, endWith,mapTo,scan,tap, takeUntil, takeWhile, take,delay, con
 // merge(click$, keyUp$).subscribe(console.log);
 
 //elem
-const count = document.getElementById('count');
-const start = document.getElementById('start');
-const pause = document.getElementById('pause');
+// const count = document.getElementById('count');
+// const start = document.getElementById('start');
+// const pause = document.getElementById('pause');
 
-const message = document.getElementById('message');
-const COUNTDOWN_FROM = 20;
+// const message = document.getElementById('message');
+// const COUNTDOWN_FROM = 20;
 
-// obs
-const startClick$ = fromEvent(start, 'click');
-const pauseClick$ = fromEvent(pause, 'click');
-const counter$ = interval(1000);
+// // obs
+// const startClick$ = fromEvent(start, 'click');
+// const pauseClick$ = fromEvent(pause, 'click');
+// const counter$ = interval(1000);
 
-merge(
-  startClick$.pipe(mapTo(true)),
-  pauseClick$.pipe(mapTo(false))
-).pipe(
-  switchMap(shouldStart => shouldStart? counter$: empty()),
-  mapTo(-1),
-  scan((accumulator, current)=>{
-    return accumulator + current;
-  },COUNTDOWN_FROM),
-  takeWhile( value => value >= 0),
-  startWith(COUNTDOWN_FROM)
-).subscribe(value => {
-    count.innerHTML = value;
-    if(!value){
-      message.innerHTML = 'Liftoff!';
-    }
-  }
-);
+// merge(
+//   startClick$.pipe(mapTo(true)),
+//   pauseClick$.pipe(mapTo(false))
+// ).pipe(
+//   switchMap(shouldStart => shouldStart? counter$: empty()),
+//   mapTo(-1),
+//   scan((accumulator, current)=>{
+//     return accumulator + current;
+//   },COUNTDOWN_FROM),
+//   takeWhile( value => value >= 0),
+//   startWith(COUNTDOWN_FROM)
+// ).subscribe(value => {
+//     count.innerHTML = value;
+//     if(!value){
+//       message.innerHTML = 'Liftoff!';
+//     }
+//   }
+// );
+
+
+// ------ combine latest
+
+// const click$ = fromEvent(document, 'click');
+// const keyUp$ = fromEvent(document, 'keyup');
+//
+// combineLatest(click$, keyUp$).subscribe(console.log);
+
+//elem
+// const first = document.getElementById('first');
+// const second = document.getElementById('second');
+//
+// const keyupAsValue = elem =>{
+//   return fromEvent(elem, 'keyup').pipe(
+//     map((event:any)=> event.target.valueAsNumber)
+//   )
+// }
+// combineLatest(
+//   keyupAsValue(first),
+//   keyupAsValue(second)
+// ).pipe(
+//   filter(([first,second])=> {return !isNaN(first) && !isNaN(second)}),
+//   map(([first,second])=> first + second)
+// ).subscribe(console.log);
+
+
+// ------ withLatestFrom ----
+const click$ = fromEvent(document, 'click');
+const interval$ = interval(1000);
+
+click$.pipe(
+  withLatestFrom(interval$)
+).subscribe(console.log);
