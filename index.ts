@@ -1,7 +1,7 @@
 console.clear();
 
-import {of, fromEvent, interval} from 'rxjs';
-import { delay, map,  mergeMap,concatMap, switchMap, exhaustMap, takeUntil,take,debounceTime, pluck, distinctUntilChanged } from 'rxjs/operators';
+import {of, fromEvent, empty, interval} from 'rxjs';
+import { delay, map,  mergeMap,concatMap, switchMap, exhaustMap, takeUntil,take,debounceTime, catchError, pluck, distinctUntilChanged } from 'rxjs/operators';
 import {ajax} from 'rxjs/ajax';
 
 const click$ = fromEvent(document, 'click');
@@ -84,21 +84,44 @@ const interval$ = interval(1000);
 //   ))
 // ).subscribe(console.log);
 
-const REGRES_IN_LOGIN = 'https://reqres.in/api/login';
+// const REGRES_IN_LOGIN = 'https://reqres.in/api/login';
 
-const login = () =>{
-  return ajax.post(REGRES_IN_LOGIN, {
-    "email": "eve.holt@reqres.in",
-    "password": "cityslicka"
-});
-}
+// const login = () =>{
+//   return ajax.post(REGRES_IN_LOGIN, {
+//     "email": "eve.holt@reqres.in",
+//     "password": "cityslicka"
+// });
+// }
 
-const loginButton = document.getElementById('login');
+// const loginButton = document.getElementById('login');
 
-const login$ = fromEvent(loginButton, 'click');
+// const login$ = fromEvent(loginButton, 'click');
 
-login$.pipe(
-  exhaustMap(()=> login())
-).subscribe(console.log);
+// login$.pipe(
+//   exhaustMap(()=> login())
+// ).subscribe(console.log);
 
-// login$.subscribe(console.log('clicked'));
+// ------ catchError ------
+
+const BASE_URL = 'https://api.openbrewerydb.org/breweries';
+
+const inputBox = document.getElementById('text-input');
+
+const typeaheadContainer = document.getElementById('typeahead-container');
+
+const input$ = fromEvent(inputBox,'keyup');
+
+input$.pipe(
+  //debounceTime(500),
+  pluck('target','value'),
+  distinctUntilChanged(),
+  switchMap(searchTerm =>{return ajax.getJSON(`${BASE_URL}?by_name=${searchTerm}`).pipe(
+    catchError(error=>{
+     return empty(); 
+    })
+  )})
+).subscribe(response => { 
+    //update ui
+    typeaheadContainer.innerHTML = response.map(b => b.name).join('<br/>')
+  }
+);
