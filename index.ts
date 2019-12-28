@@ -1,127 +1,26 @@
-console.clear();
-
-import {of, fromEvent, empty, interval} from 'rxjs';
-import { delay, map,  mergeMap,concatMap, switchMap, exhaustMap, takeUntil,take,debounceTime, catchError, pluck, distinctUntilChanged } from 'rxjs/operators';
-import {ajax} from 'rxjs/ajax';
-
-const click$ = fromEvent(document, 'click');
-const mouseDown$ = fromEvent(document, 'mousedown');
-const mouseUp$ = fromEvent(document, 'mouseup');
-const interval$ = interval(1000);
-
-//----- MERGE MAP -----
-
-// click$.pipe(
-//  mergeMap(()=> interval$)
-// ).subscribe(console.log);
-
-// mouseDown$.pipe(
-//   mergeMap(()=> interval$.pipe(
-//     takeUntil(mouseUp$)
-//   ))
-// ).subscribe(console.log);
-
-// const coordinates$ = click$.pipe(
-//   map(({clientX,clientY})=> ({x: clientX,y: clientY}))
-// );
-
-// const coordinatesWithSave = coordinates$.pipe(
-//   mergeMap(coords => ajax.post('https://www.mocky.io/v2/5185415ba171ea3a00704eed', coords) )
-// ).subscribe(console.log);
+import {fromEvent, timer} from 'rxjs'
+import {ajax} from 'rxjs/ajax'
+import {pluck, mergeMapTo, exhaustMap, takeUntil, tap, finalize} from 'rxjs/operators'
 
 
-// ------ SWITCH MAP ------
-// click$.pipe(
-//  switchMap(()=> interval$)
-// ).subscribe(console.log);
+//elem
+const startButton = document.getElementById('start');
+const stopButton = document.getElementById('stop');
+const status = document.getElementById('status');
+const dogImg = document.getElementById('dog-img');
+//obs
+const startClick$ = fromEvent(startButton,'click');
+const stopClick$ = fromEvent(stopButton, 'click');
 
-// const BASE_URL = 'https://api.openbrewerydb.org/breweries';
-
-// const inputBox = document.getElementById('text-input');
-
-// const typeaheadContainer = document.getElementById('typeahead-container');
-
-// const input$ = fromEvent(inputBox,'keyup');
-
-// input$.pipe(
-//   //debounceTime(500),
-//   pluck('target','value'),
-//   distinctUntilChanged(),
-//   switchMap(searchTerm =>{return ajax.getJSON(`${BASE_URL}?by_name=${searchTerm}`)})
-// ).subscribe(response => { 
-//     //update ui
-//     typeaheadContainer.innerHTML = response.map(b => b.name).join('<br/>')
-//   }
-// );
-
-// ------ CONCAT MAP ------
-
-// click$.pipe(
-//   concatMap(()=> interval$.pipe(
-//     take(3)
-//   )), 
-// ).subscribe(console.log);
-
-// const saveAnswer = answer => {
-//   return of(`Saved: ${answer}`).pipe(
-//     delay(1500)
-//   );
-// };
-
-// const radioButtons = document.querySelectorAll('.radio-option');
-
-// const answerChange$ = fromEvent(radioButtons, 'click');
-
-// answerChange$.pipe(
-//   concatMap(event => saveAnswer(event.target.value))
-// ).subscribe(console.log);
-
-// ------ EXHAUST MAP ------
-
-// click$.pipe(
-//   exhaustMap(()=> interval$.pipe(
-//     take(3)
-//   ))
-// ).subscribe(console.log);
-
-// const REGRES_IN_LOGIN = 'https://reqres.in/api/login';
-
-// const login = () =>{
-//   return ajax.post(REGRES_IN_LOGIN, {
-//     "email": "eve.holt@reqres.in",
-//     "password": "cityslicka"
-// });
-// }
-
-// const loginButton = document.getElementById('login');
-
-// const login$ = fromEvent(loginButton, 'click');
-
-// login$.pipe(
-//   exhaustMap(()=> login())
-// ).subscribe(console.log);
-
-// ------ catchError ------
-
-const BASE_URL = 'https://api.openbrewerydb.org/breweries';
-
-const inputBox = document.getElementById('text-input');
-
-const typeaheadContainer = document.getElementById('typeahead-container');
-
-const input$ = fromEvent(inputBox,'keyup');
-
-input$.pipe(
-  //debounceTime(500),
-  pluck('target','value'),
-  distinctUntilChanged(),
-  switchMap(searchTerm =>{return ajax.getJSON(`${BASE_URL}?by_name=${searchTerm}`).pipe(
-    catchError(error=>{
-     return empty(); 
-    })
-  )})
-).subscribe(response => { 
-    //update ui
-    typeaheadContainer.innerHTML = response.map(b => b.name).join('<br/>')
-  }
-);
+startClick$.pipe(
+  mergeMapTo(
+    timer(0,5000).pipe(
+      tap(() => status.innerHTML = 'Active'),
+      exhaustMap(()=>{ return ajax.getJSON('https://random.dog/woof.json').pipe(
+          pluck('url')
+      )}),
+      takeUntil(stopClick$), 
+      finalize(()=> status.innerHTML = 'Stopped')
+    )
+  )
+).subscribe(url => dogImg.src = url);
